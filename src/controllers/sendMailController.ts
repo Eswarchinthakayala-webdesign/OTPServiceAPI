@@ -35,196 +35,187 @@ class SendMailController {
   }
 
   private generateHtmlTemplate(otp: string, organization: string): string {
+    const year = new Date().getFullYear();
     return `
       <!DOCTYPE html>
       <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>${organization} - Verification Code</title>
-              <style>
-                  body {
-                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                      background-color: #f4f6f8;
-                      margin: 0;
-                      padding: 0;
-                  }
-                  .wrapper {
-                      width: 100%;
-                      table-layout: fixed;
-                      background-color: #f4f6f8;
-                      padding-bottom: 30px;
-                  }
-                  .main {
-                      background-color: #ffffff;
-                      margin: 0 auto;
-                      width: 100%;
-                      max-width: 600px;
-                      border-spacing: 0;
-                      border-radius: 8px;
-                      overflow: hidden;
-                  }
-                  .header {
-                      background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
-                      padding: 40px 30px;
-                      text-align: center;
-                  }
-                  .header-logo {
-                      font-size: 28px;
-                      font-weight: 600;
-                      color: #ffffff;
-                      letter-spacing: 0.5px;
-                  }
-                  .header-subtitle {
-                      font-size: 14px;
-                      color: #a0aec0;
-                      margin-top: 8px;
-                      font-weight: 400;
-                  }
-                  .content {
-                      padding: 40px 30px;
-                  }
-                  .greeting {
-                      font-size: 18px;
-                      color: #2d3748;
-                      margin-bottom: 24px;
-                      line-height: 1.6;
-                  }
-                  .otp-label {
-                      font-size: 14px;
-                      color: #718096;
-                      text-transform: uppercase;
-                      letter-spacing: 1px;
-                      margin-bottom: 12px;
-                  }
-                  .otp-container {
-                      background-color: #edf2f7;
-                      border-radius: 8px;
-                      padding: 24px;
-                      margin: 20px 0;
-                  }
-                  .otp {
-                      font-size: 36px;
-                      font-weight: 700;
-                      color: #1a365d;
-                      letter-spacing: 8px;
-                      font-family: 'Courier New', monospace;
-                  }
-                  .otp-note {
-                      font-size: 13px;
-                      color: #a0aec0;
-                      margin-top: 16px;
-                      line-height: 1.5;
-                  }
-                  .footer {
-                      background-color: #f7fafc;
-                      padding: 30px;
-                      text-align: center;
-                      border-top: 1px solid #e2e8f0;
-                  }
-                  .footer-text {
-                      font-size: 12px;
-                      color: #a0aec0;
-                      margin: 0;
-                      line-height: 1.6;
-                  }
-                  .footer-links {
-                      margin-top: 12px;
-                  }
-                  .footer-links a {
-                      color: #2c5282;
-                      text-decoration: none;
-                      font-size: 12px;
-                  }
-                  .footer-links a:hover {
-                      text-decoration: underline;
-                  }
-                  .credit {
-                      font-size: 12px;
-                      color: #718096;
-                      margin: 12px 0 0 0;
-                      line-height: 1.6;
-                  }
-                  .credit a {
-                      color: #2c5282;
-                      text-decoration: none;
-                      font-weight: 500;
-                  }
-                  .credit a:hover {
-                      text-decoration: underline;
-                  }
-                  .divider {
-                      height: 1px;
-                      background-color: #e2e8f0;
-                      margin: 0 30px;
-                  }
-                  .security-badge {
-                      display: inline-block;
-                      background-color: #c6f6d5;
-                      color: #22543d;
-                      padding: 6px 12px;
-                      border-radius: 4px;
-                      font-size: 11px;
-                      font-weight: 600;
-                      text-transform: uppercase;
-                      letter-spacing: 0.5px;
-                      margin-bottom: 20px;
-                  }
-              </style>
-          </head>
-          <body>
-              <div class="wrapper">
-                  <table class="main" role="presentation">
-                      <tr>
-                          <td class="header">
-                              <div class="header-logo">${organization}</div>
-                              <div class="header-subtitle">Secure Verification</div>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td class="content">
-                              <div class="security-badge">
-                                  &#128274; One-Time Password
-                              </div>
-                              <p class="greeting">
-                                  Hello,<br><br>
-                                  We received a request for a verification code to access your account. 
-                                  Please use the following OTP to complete your authentication:
-                              </p>
-                              <div class="otp-container">
-                                  <p class="otp-label">Your Verification Code</p>
-                                  <p class="otp">${otp}</p>
-                              </div>
-                              <p class="otp-note">
-                                  This code will expire in <strong>5 minutes</strong> for security purposes.
-                                  If you didn't request this code, please ignore this email or contact support 
-                                  if you have concerns about your account security.
-                              </p>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td class="divider"></td>
-                      </tr>
-                      <tr>
-                          <td class="footer">
-                              <p class="footer-text">
-                                  This is an automated message. Please do not reply directly to this email.
-                              </p>
-                              <div class="footer-links">
-                                   <p class="credit">
-                                      <a href="https://otpservice-free.vercel.app" target="_blank">Visit Our Website</a>
-                                      &nbsp;·&nbsp; Designed & Built by <a href="https://github.com/Eswarchinthakayala-webdesign" target="_blank">Eswar Chinthakayala</a>
-                                    
-                                  </p>
-                              </div>
-                              <p class="footer-text" style="margin-top: 16px;">
-                                  &copy; ${new Date().getFullYear()} ${organization}. All rights reserved.
-                              </p>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-          </body>
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${organization} - Verification Code</title>
+          <style>
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+              
+              body {
+                  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                  background-color: #f8fafc;
+                  margin: 0;
+                  padding: 0;
+                  -webkit-font-smoothing: antialiased;
+              }
+              .wrapper {
+                  width: 100%;
+                  table-layout: fixed;
+                  background-color: #f8fafc;
+                  padding: 40px 0;
+              }
+              .main {
+                  background-color: #ffffff;
+                  margin: 0 auto;
+                  width: 100%;
+                  max-width: 580px;
+                  border-spacing: 0;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+              }
+              .header {
+                  background-color: #ffffff;
+                  padding: 40px 40px 20px;
+                  text-align: left;
+              }
+              .header-logo {
+                  font-size: 24px;
+                  font-weight: 700;
+                  color: #4f46e5;
+                  letter-spacing: -0.5px;
+              }
+              .content {
+                  padding: 0 40px 40px;
+              }
+              .title {
+                  font-size: 24px;
+                  font-weight: 700;
+                  color: #1e293b;
+                  margin-bottom: 24px;
+                  line-height: 1.2;
+              }
+              .description {
+                  font-size: 16px;
+                  color: #475569;
+                  margin-bottom: 32px;
+                  line-height: 1.6;
+              }
+              .otp-container {
+                  background-color: #f1f5f9;
+                  border-radius: 12px;
+                  padding: 32px;
+                  text-align: center;
+                  margin-bottom: 32px;
+                  border: 1px solid #e2e8f0;
+              }
+              .otp-label {
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: #64748b;
+                  text-transform: uppercase;
+                  letter-spacing: 1.5px;
+                  margin-bottom: 16px;
+              }
+              .otp-code {
+                  font-size: 42px;
+                  font-weight: 800;
+                  color: #4f46e5;
+                  letter-spacing: 12px;
+                  font-family: 'Courier New', monospace;
+                  margin: 0;
+              }
+              .expiry-note {
+                  font-size: 14px;
+                  color: #64748b;
+                  margin-top: 16px;
+              }
+              .divider {
+                  height: 1px;
+                  background-color: #e2e8f0;
+                  margin: 0 40px;
+              }
+              .footer {
+                  padding: 32px 40px;
+                  background-color: #ffffff;
+              }
+              .footer-text {
+                  font-size: 14px;
+                  color: #94a3b8;
+                  line-height: 1.6;
+                  margin: 0 0 16px;
+              }
+              .security-notice {
+                  background-color: #fef2f2;
+                  border-radius: 8px;
+                  padding: 16px;
+                  border: 1px solid #fee2e2;
+                  margin-top: 24px;
+              }
+              .security-notice p {
+                  font-size: 13px;
+                  color: #991b1b;
+                  margin: 0;
+                  line-height: 1.5;
+              }
+              .social-links {
+                  margin-top: 24px;
+                  font-size: 13px;
+                  color: #64748b;
+              }
+              .social-links a {
+                  color: #4f46e5;
+                  text-decoration: none;
+                  font-weight: 500;
+              }
+              .copyright {
+                  font-size: 12px;
+                  color: #cbd5e1;
+                  margin-top: 32px;
+                  text-align: center;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="wrapper">
+              <table class="main" role="presentation" align="center">
+                  <tr>
+                      <td class="header">
+                          <div class="header-logo">${organization}</div>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td class="content">
+                          <h1 class="title">Verify your identity</h1>
+                          <p class="description">
+                              Hello,<br><br>
+                              To complete your sign-in, please use the verification code below. This code is unique to this request and should not be shared with anyone.
+                          </p>
+                          <div class="otp-container">
+                              <p class="otp-label">Verification Code</p>
+                              <div class="otp-code">${otp}</div>
+                              <p class="expiry-note">Valid for 5 minutes</p>
+                          </div>
+                          <div class="security-notice">
+                              <p><strong>Security Tip:</strong> Our team will never ask for this code over the phone or via social media. If you didn't request this, please secure your account immediately.</p>
+                          </div>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td class="divider"></td>
+                  </tr>
+                  <tr>
+                      <td class="footer">
+                          <p class="footer-text">
+                              This is an automated security notification from ${organization}.
+                          </p>
+                          <div class="social-links">
+                              <a href="https://otpservice-free.vercel.app">Website</a> &nbsp;•&nbsp; 
+                              <a href="https://github.com/Eswarchinthakayala-webdesign">Support</a>
+                          </div>
+                          <p class="copyright">
+                              &copy; ${year} ${organization}. All rights reserved.
+                          </p>
+                      </td>
+                  </tr>
+              </table>
+          </div>
+      </body>
       </html>
     `;
   }
