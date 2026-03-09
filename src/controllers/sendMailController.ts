@@ -197,9 +197,7 @@ class SendMailController {
               <table class="main-card" role="presentation" border="0" cellpadding="0" cellspacing="0">
                   <tr>
                       <td class="header">
-                          <div class="logo-circle" align="center">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 14px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-                          </div>
+                         
                           <div class="brand-text">${organization.split(' ')[0]}<span>${organization.split(' ').slice(1).join(' ')}</span></div>
                       </td>
                   </tr>
