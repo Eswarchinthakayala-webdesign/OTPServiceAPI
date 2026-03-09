@@ -1095,7 +1095,7 @@
                         <span class="code-window-title">generate-otp.js</span>
                     </div>
                     <pre><code><span class="code-comment">// Step 1: Generate & send OTP</span>
-<span class="code-keyword">const</span> <span class="code-const">response</span> = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'https://your-domain.com/api/otp/generate'</span>, <span class="code-bracket">{</span>
+<span class="code-keyword">const</span> <span class="code-const">response</span> = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'https://otpservice-free.vercel.app/api/otp/generate'</span>, <span class="code-bracket">{</span>
   <span class="code-const">method</span>: <span class="code-string">'POST'</span>,
   <span class="code-const">headers</span>: <span class="code-bracket">{</span> <span class="code-string">'Content-Type'</span>: <span class="code-string">'application/json'</span> <span class="code-bracket">}</span>,
   <span class="code-const">body</span>: JSON.<span class="code-function">stringify</span>(<span class="code-bracket">{</span>
@@ -1110,7 +1110,7 @@ console.<span class="code-function">log</span>(data);
 <span class="code-comment">// → { "message": "OTP is generated and sent to your email" }</span>
 
 <span class="code-comment">// Step 2: Verify OTP (after user enters the code)</span>
-<span class="code-keyword">const</span> <span class="code-const">verify</span> = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'https://your-domain.com/api/otp/verify'</span>, <span class="code-bracket">{</span>
+<span class="code-keyword">const</span> <span class="code-const">verify</span> = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'https://otpservice-free.vercel.app/api/otp/verify'</span>, <span class="code-bracket">{</span>
   <span class="code-const">method</span>: <span class="code-string">'POST'</span>,
   <span class="code-const">headers</span>: <span class="code-bracket">{</span> <span class="code-string">'Content-Type'</span>: <span class="code-string">'application/json'</span> <span class="code-bracket">}</span>,
   <span class="code-const">body</span>: JSON.<span class="code-function">stringify</span>(<span class="code-bracket">{</span>

@@ -4,6 +4,10 @@
 
 The **OTP Service** is a high-performance, secure Node.js-based API that automates the generation and verification of One-Time Passwords via email. Featuring a professional dark-themed landing page and built-in spam protection, it’s designed for seamless integration into 2FA or passwordless login flows.
 
+## 🔗 Live Demo
+
+- **URL**: [otpservice-free.vercel.app](https://otpservice-free.vercel.app/)
+
 ## 🚀 Key Features
 
 - **No API Key Required**: Publicly accessible endpoints for quick integration.
