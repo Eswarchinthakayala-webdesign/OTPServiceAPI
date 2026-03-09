@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Service — Secure One-Time Password API</title>
+    <meta name="description" content="Free, open-source OTP generation and verification API. Built with Node.js, Express, and MongoDB. No API key required.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-tertiary: #1a1a24;
+            --bg-card: #15151f;
+            --bg-card-hover: #1c1c28;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #f0f0f5;
+            --text-secondary: #8b8b9e;
+            --text-tertiary: #5a5a6e;
+            --accent-primary: #6c63ff;
+            --accent-secondary: #a78bfa;
+            --accent-glow: rgba(108, 99, 255, 0.15);
+            --accent-gradient: linear-gradient(135deg, #6c63ff 0%, #a78bfa 50%, #c084fc 100%);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        /* ─── Ambient Background ─── */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .ambient-bg .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .ambient-bg .orb-1 {
+            width: 600px; height: 600px;
+            background: #6c63ff;
+            top: -200px; left: -100px;
+            animation-delay: 0s;
+        }
+
+        .ambient-bg .orb-2 {
+            width: 500px; height: 500px;
+            background: #a78bfa;
+            top: 400px; right: -150px;
+            animation-delay: -7s;
+        }
+
+        .ambient-bg .orb-3 {
+            width: 400px; height: 400px;
+            background: #c084fc;
+            bottom: -100px; left: 30%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(15px, 30px) scale(1.02); }
+        }
+
+        /* ─── Layout ─── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── Header ─── */
+        header {
+            padding: 16px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text span {
+            color: var(--accent-secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-btn {
+            background: var(--accent-gradient) !important;
+            color: white !important;
+            padding: 8px 20px !important;
+            font-weight: 600 !important;
+        }
+
+        .nav-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* ─── Hero ─── */
+        .hero {
+            padding: 160px 0 120px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px 6px 8px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-secondary);
+            margin-bottom: 32px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .hero-badge .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 560px;
+            margin: 0 auto 48px;
+            line-height: 1.7;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease-out 0.3s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ─── Stats ─── */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 48px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin: 0 0 80px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* ─── Section Shared ─── */
+        .section {
+            padding: 100px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-secondary);
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        /* ─── Features ─── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 36px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon-box {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-glow);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--accent-secondary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ─── API Section ─── */
+        .api-section {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .api-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .api-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .api-card-header {
+            padding: 24px 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .method-post {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .api-card-header .endpoint-info h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .api-card-header .endpoint-info p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .api-card-body {
+            padding: 0;
+        }
+
+        .api-url {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 28px;
+            background: rgba(0, 0, 0, 0.2);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-url .url-label {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            flex-shrink: 0;
+        }
+
+        .api-params {
+            padding: 20px 28px;
+        }
+
+        .api-params h5 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .param-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .param-row:last-child {
+            border-bottom: none;
+        }
+
+        .param-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .param-type {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .param-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        .param-required {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #ef4444;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .param-optional {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Response Example */
+        .response-example {
+            padding: 20px 28px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .response-example h5 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .response-status {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .status-200 {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .response-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            overflow-x: auto;
+        }
+
+        .response-block .json-key {
+            color: var(--accent-secondary);
+        }
+
+        .response-block .json-string {
+            color: var(--success);
+        }
+
+        /* ─── Code Example Section ─── */
+        .code-section {
+            background: var(--bg-primary);
+        }
+
+        .code-container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .code-window {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .code-window-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .window-dot.red { background: #ff5f57; }
+        .window-dot.yellow { background: #febc2e; }
+        .window-dot.green { background: #28c840; }
+
+        .code-window-title {
+            flex: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .code-window pre {
+            padding: 24px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .code-window code {
+            color: var(--text-secondary);
+        }
+
+        .code-comment { color: var(--text-tertiary); }
+        .code-keyword { color: #c084fc; }
+        .code-string { color: #34d399; }
+        .code-function { color: #60a5fa; }
+        .code-const { color: var(--accent-secondary); }
+        .code-bracket { color: var(--text-tertiary); }
+
+        /* ─── No API Key Banner ─── */
+        .no-key-banner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px 32px;
+            margin-bottom: 48px;
+        }
+
+        .no-key-banner .banner-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--success-bg);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            flex-shrink: 0;
+        }
+
+        .no-key-banner h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .no-key-banner p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* ─── Footer ─── */
+        footer {
+            padding: 48px 0;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        footer .credit {
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+        }
+
+        footer .credit a {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer .credit a:hover {
+            text-decoration: underline;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+
+            .hero { padding: 130px 0 80px; }
+
+            .stats-bar {
+                gap: 32px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .api-card-header {
+                flex-direction: column;
+            }
+
+            .param-row {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .no-key-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* ─── Subtle Animations ─── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- ─── Header ─── -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="/" class="logo">
+                    <div class="logo-icon">
+                        <i data-lucide="shield-check" style="width:22px;height:22px;"></i>
+                    </div>
+                    <span class="logo-text">OTP<span>Service</span></span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#api">API Docs</a></li>
+                    <li><a href="#quickstart">Quick Start</a></li>
+                    <li><a href="https://github.com/Eswarchinthakayala-webdesign" target="_blank" class="nav-btn" style="border-radius:var(--radius-sm);">
+                        <i data-lucide="github" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;margin-top:-2px;"></i> GitHub
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ─── Hero ─── -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Free & Open Source — No API Key Required
+            </div>
+            <h1>Secure OTP Generation<br><span class="gradient-text">& Verification API</span></h1>
+            <p class="subtitle">
+                A production-ready one-time password service with email delivery, automatic expiration, and built-in spam protection. Integrate in minutes.
+            </p>
+            <div class="hero-actions">
+                <a href="#api" class="btn btn-primary">
+                    <i data-lucide="book-open" style="width:18px;height:18px;"></i>
+                    API Documentation
+                </a>
+                <a href="#quickstart" class="btn btn-ghost">
+                    <i data-lucide="code-2" style="width:18px;height:18px;"></i>
+                    Quick Start
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Stats Bar ─── -->
+    <div class="container">
+        <div class="stats-bar fade-in">
+            <div class="stat-item">
+                <div class="stat-value">6-Digit</div>
+                <div class="stat-label">OTP Generation</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">2 min</div>
+                <div class="stat-label">Auto Expiration</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">0</div>
+                <div class="stat-label">API Keys Needed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Free & Open Source</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Features ─── -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">
+                    <i data-lucide="sparkles" style="width:16px;height:16px;"></i>
+                    Features
+                </div>
+                <h2>Everything You Need</h2>
+                <p>Built with security, performance, and developer experience in mind.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon-box">
+                        <i data-lucide="zap" style="width:22px;height:22px;"></i>
+                    </div>
+                    <h3>Instant Generation</h3>
+                    <p>Generate secure numeric or alphanumeric OTPs instantly. Configurable length and complexity.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon-box">
+                        <i data-lucide="lock" style="width:22px;height:22px;"></i>
+                    </div>
+                    <h3>Cryptographically Secure</h3>
+                    <p>Uses strong randomization for OTP generation with automatic expiration and one-time use enforcement.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon-box">
+                        <i data-lucide="mail" style="width:22px;height:22px;"></i>
+                    </div>
+                    <h3>Email Delivery</h3>
+                    <p>Automatic email delivery via SMTP with customizable organization name and email subject.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon-box">
+                        <i data-lucide="timer" style="width:22px;height:22px;"></i>
+                    </div>
+                    <h3>Auto-Expiration</h3>
+                    <p>OTPs automatically expire after a configurable duration. Defaults to 2 minutes for maximum security.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon-box">
+                        <i data-lucide="shield-alert" style="width:22px;height:22px;"></i>
+                    </div>
+                    <h3>Spam Protection</h3>
+                    <p>Built-in IP and email blocklist with keyword filtering. Prevents abuse automatically.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon-box">
+                        <i data-lucide="puzzle" style="width:22px;height:22px;"></i>
+                    </div>
+                    <h3>Easy Integration</h3>
+                    <p>Simple REST API with JSON payloads. No API key required — just send a POST request and go.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── API Endpoints ─── -->
+    <section class="section api-section" id="api">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">
+                    <i data-lucide="terminal" style="width:16px;height:16px;"></i>
+                    API Reference
+                </div>
+                <h2>API Endpoints</h2>
+                <p>Two simple endpoints — generate and verify. That's all you need.</p>
+            </div>
+
+            <div class="no-key-banner fade-in">
+                <div class="banner-icon">
+                    <i data-lucide="key-round" style="width:22px;height:22px;"></i>
+                </div>
+                <div>
+                    <h4>No API Key Required</h4>
+                    <p>This service is completely free and open. Just send your requests — no authentication, no sign-up, no rate limits beyond spam protection.</p>
+                </div>
+            </div>
+
+            <div class="api-grid">
+
+                <!-- Generate OTP -->
+                <div class="api-card fade-in">
+                    <div class="api-card-header">
+                        <span class="method-badge method-post">POST</span>
+                        <div class="endpoint-info">
+                            <h4>Generate & Send OTP</h4>
+                            <p>Generate a new OTP and deliver it to the specified email address.</p>
+                        </div>
+                    </div>
+                    <div class="api-card-body">
+                        <div class="api-url">
+                            <span class="url-label">URL</span>
+                            /api/otp/generate
+                        </div>
+                        <div class="api-params">
+                            <h5>Request Body (JSON)</h5>
+                            <div class="param-row">
+                                <span class="param-name">email</span>
+                                <span class="param-type">string</span>
+                                <span class="param-required">required</span>
+                                <span class="param-desc">Recipient's email address</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">type</span>
+                                <span class="param-type">string</span>
+                                <span class="param-optional">optional</span>
+                                <span class="param-desc">"numeric" (default) or "alphanumeric"</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">organization</span>
+                                <span class="param-type">string</span>
+                                <span class="param-optional">optional</span>
+                                <span class="param-desc">Organization name shown in the email</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">subject</span>
+                                <span class="param-type">string</span>
+                                <span class="param-optional">optional</span>
+                                <span class="param-desc">Custom email subject line</span>
+                            </div>
+                        </div>
+                        <div class="response-example">
+                            <h5>Response <span class="response-status status-200">200 OK</span></h5>
+                            <div class="response-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"message"</span>: <span class="json-string">"OTP is generated and sent to your email"</span><br>
+}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verify OTP -->
+                <div class="api-card fade-in">
+                    <div class="api-card-header">
+                        <span class="method-badge method-post">POST</span>
+                        <div class="endpoint-info">
+                            <h4>Verify OTP</h4>
+                            <p>Verify the OTP entered by the user against the stored value.</p>
+                        </div>
+                    </div>
+                    <div class="api-card-body">
+                        <div class="api-url">
+                            <span class="url-label">URL</span>
+                            /api/otp/verify
+                        </div>
+                        <div class="api-params">
+                            <h5>Request Body (JSON)</h5>
+                            <div class="param-row">
+                                <span class="param-name">email</span>
+                                <span class="param-type">string</span>
+                                <span class="param-required">required</span>
+                                <span class="param-desc">The email address used to generate the OTP</span>
+                            </div>
+                            <div class="param-row">
+                                <span class="param-name">otp</span>
+                                <span class="param-type">string</span>
+                                <span class="param-required">required</span>
+                                <span class="param-desc">The OTP code to verify</span>
+                            </div>
+                        </div>
+                        <div class="response-example">
+                            <h5>Response <span class="response-status status-200">200 OK</span></h5>
+                            <div class="response-block">
+{<br>
+&nbsp;&nbsp;<span class="json-key">"message"</span>: <span class="json-string">"OTP is verified"</span><br>
+}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Quick Start ─── -->
+    <section class="section code-section" id="quickstart">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">
+                    <i data-lucide="rocket" style="width:16px;height:16px;"></i>
+                    Quick Start
+                </div>
+                <h2>Integrate in Seconds</h2>
+                <p>Copy, paste, and you're ready to go. No SDK, no setup.</p>
+            </div>
+
+            <div class="code-container fade-in">
+                <div class="code-window">
+                    <div class="code-window-bar">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                        <span class="code-window-title">generate-otp.js</span>
+                    </div>
+                    <pre><code><span class="code-comment">// Step 1: Generate & send OTP</span>
+<span class="code-keyword">const</span> <span class="code-const">response</span> = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'https://your-domain.com/api/otp/generate'</span>, <span class="code-bracket">{</span>
+  <span class="code-const">method</span>: <span class="code-string">'POST'</span>,
+  <span class="code-const">headers</span>: <span class="code-bracket">{</span> <span class="code-string">'Content-Type'</span>: <span class="code-string">'application/json'</span> <span class="code-bracket">}</span>,
+  <span class="code-const">body</span>: JSON.<span class="code-function">stringify</span>(<span class="code-bracket">{</span>
+    <span class="code-const">email</span>: <span class="code-string">'user@example.com'</span>,
+    <span class="code-const">organization</span>: <span class="code-string">'My App'</span>,
+    <span class="code-const">subject</span>: <span class="code-string">'Verify Your Account'</span>
+  <span class="code-bracket">}</span>)
+<span class="code-bracket">}</span>);
+
+<span class="code-keyword">const</span> <span class="code-const">data</span> = <span class="code-keyword">await</span> response.<span class="code-function">json</span>();
+console.<span class="code-function">log</span>(data);
+<span class="code-comment">// → { "message": "OTP is generated and sent to your email" }</span>
+
+<span class="code-comment">// Step 2: Verify OTP (after user enters the code)</span>
+<span class="code-keyword">const</span> <span class="code-const">verify</span> = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'https://your-domain.com/api/otp/verify'</span>, <span class="code-bracket">{</span>
+  <span class="code-const">method</span>: <span class="code-string">'POST'</span>,
+  <span class="code-const">headers</span>: <span class="code-bracket">{</span> <span class="code-string">'Content-Type'</span>: <span class="code-string">'application/json'</span> <span class="code-bracket">}</span>,
+  <span class="code-const">body</span>: JSON.<span class="code-function">stringify</span>(<span class="code-bracket">{</span>
+    <span class="code-const">email</span>: <span class="code-string">'user@example.com'</span>,
+    <span class="code-const">otp</span>: <span class="code-string">'482916'</span>
+  <span class="code-bracket">}</span>)
+<span class="code-bracket">}</span>);
+
+<span class="code-keyword">const</span> <span class="code-const">result</span> = <span class="code-keyword">await</span> verify.<span class="code-function">json</span>();
+console.<span class="code-function">log</span>(result);
+<span class="code-comment">// → { "message": "OTP is verified" }</span></code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Footer ─── -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <a href="/" class="logo" style="margin-bottom:8px;">
+                    <div class="logo-icon" style="width:32px;height:32px;">
+                        <i data-lucide="shield-check" style="width:18px;height:18px;"></i>
+                    </div>
+                    <span class="logo-text">OTP<span>Service</span></span>
+                </a>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#api">API</a></li>
+                    <li><a href="#quickstart">Quick Start</a></li>
+                    <li><a href="https://github.com/Eswarchinthakayala-webdesign" target="_blank">GitHub</a></li>
+                </ul>
+                <p class="credit">
+                    Designed & Built by <a href="https://github.com/Eswarchinthakayala-webdesign" target="_blank">Eswar Chinthakayala</a>
+                    &nbsp;·&nbsp; Licensed under <a href="https://opensource.org/licenses/MIT" target="_blank">MIT</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ─── Initialize Lucide Icons & Scroll Animations ─── -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 80);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -60px 0px'
+        });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
