@@ -13,7 +13,7 @@ const sendMailController = new SendMailController();
  */
 router.post('/otp/generate', validateSpamMiddleware, async (req, res) => {
   try {
-    const { email, type = 'numeric', organization = 'Saurav Hathi', subject = 'One-Time Password (OTP)' } = req.body;
+    const { email, type = 'numeric', organization = 'Eswar Chinthakayala', subject = 'One-Time Password (OTP)' } = req.body;
 
     const otp = await otpController.generateOtp(email, type);
     await sendMailController.sendMail(email, otp, organization, subject)
