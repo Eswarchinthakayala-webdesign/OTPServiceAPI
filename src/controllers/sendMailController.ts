@@ -41,68 +41,188 @@ class SendMailController {
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>${organization} OTP</title>
+              <title>${organization} - Verification Code</title>
               <style>
                   body {
-                      font-family: Arial, sans-serif;
-                      background-color: #f8f8f8;
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      background-color: #f4f6f8;
                       margin: 0;
                       padding: 0;
                   }
-                  .container {
-                      max-width: 600px;
-                      margin: 0 auto;
+                  .wrapper {
+                      width: 100%;
+                      table-layout: fixed;
+                      background-color: #f4f6f8;
+                      padding-bottom: 30px;
+                  }
+                  .main {
                       background-color: #ffffff;
-                      border-radius: 5px;
-                      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                      margin: 0 auto;
+                      width: 100%;
+                      max-width: 600px;
+                      border-spacing: 0;
+                      border-radius: 8px;
+                      overflow: hidden;
                   }
                   .header {
-                      background-color: #0073e6;
-                      color: #ffffff;
-                      padding: 20px;
+                      background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+                      padding: 40px 30px;
                       text-align: center;
-                      border-top-left-radius: 5px;
-                      border-top-right-radius: 5px;
+                  }
+                  .header-logo {
+                      font-size: 28px;
+                      font-weight: 600;
+                      color: #ffffff;
+                      letter-spacing: 0.5px;
+                  }
+                  .header-subtitle {
+                      font-size: 14px;
+                      color: #a0aec0;
+                      margin-top: 8px;
+                      font-weight: 400;
                   }
                   .content {
-                      padding: 20px;
-                      text-align: center;
+                      padding: 40px 30px;
+                  }
+                  .greeting {
+                      font-size: 18px;
+                      color: #2d3748;
+                      margin-bottom: 24px;
+                      line-height: 1.6;
+                  }
+                  .otp-label {
+                      font-size: 14px;
+                      color: #718096;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                      margin-bottom: 12px;
+                  }
+                  .otp-container {
+                      background-color: #edf2f7;
+                      border-radius: 8px;
+                      padding: 24px;
+                      margin: 20px 0;
                   }
                   .otp {
-                      font-size: 32px;
-                      font-weight: bold;
-                      color: #0073e6;
+                      font-size: 36px;
+                      font-weight: 700;
+                      color: #1a365d;
+                      letter-spacing: 8px;
+                      font-family: 'Courier New', monospace;
+                  }
+                  .otp-note {
+                      font-size: 13px;
+                      color: #a0aec0;
+                      margin-top: 16px;
+                      line-height: 1.5;
                   }
                   .footer {
-                      border: 1px dashed #cccccc;
-                      border-width: 2px 0;
-                      padding: 20px;
+                      background-color: #f7fafc;
+                      padding: 30px;
                       text-align: center;
+                      border-top: 1px solid #e2e8f0;
                   }
-                  .footer a {
-                      color: #0073e6;
+                  .footer-text {
+                      font-size: 12px;
+                      color: #a0aec0;
+                      margin: 0;
+                      line-height: 1.6;
                   }
-                  .footer a:hover {
+                  .footer-links {
+                      margin-top: 12px;
+                  }
+                  .footer-links a {
+                      color: #2c5282;
+                      text-decoration: none;
+                      font-size: 12px;
+                  }
+                  .footer-links a:hover {
                       text-decoration: underline;
+                  }
+                  .credit {
+                      font-size: 12px;
+                      color: #718096;
+                      margin: 12px 0 0 0;
+                      line-height: 1.6;
+                  }
+                  .credit a {
+                      color: #2c5282;
+                      text-decoration: none;
+                      font-weight: 500;
+                  }
+                  .credit a:hover {
+                      text-decoration: underline;
+                  }
+                  .divider {
+                      height: 1px;
+                      background-color: #e2e8f0;
+                      margin: 0 30px;
+                  }
+                  .security-badge {
+                      display: inline-block;
+                      background-color: #c6f6d5;
+                      color: #22543d;
+                      padding: 6px 12px;
+                      border-radius: 4px;
+                      font-size: 11px;
+                      font-weight: 600;
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                      margin-bottom: 20px;
                   }
               </style>
           </head>
           <body>
-              <div class="container">
-                  <div class="header">
-                      <h1>${organization}</h1>
-                      <p style="font-size: 14px;color: #ffffff;">
-                          You received this email because you requested an OTP.
-                      </p>
-                  </div>
-                  <div class="content">
-                      <p>Your One-Time Password (OTP) is:</p>
-                      <p class="otp">${otp}</p>
-                  </div>
-                  <div class="footer">
-                      <p>For more information, visit our GitHub repository:</p>
-                      <p><a href="https://github.com/sauravhathi/otp-service" target="_blank">Saurav Hathi</a></p>
-                  </div>
+              <div class="wrapper">
+                  <table class="main" role="presentation">
+                      <tr>
+                          <td class="header">
+                              <div class="header-logo">${organization}</div>
+                              <div class="header-subtitle">Secure Verification</div>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td class="content">
+                              <div class="security-badge">
+                                  &#128274; One-Time Password
+                              </div>
+                              <p class="greeting">
+                                  Hello,<br><br>
+                                  We received a request for a verification code to access your account. 
+                                  Please use the following OTP to complete your authentication:
+                              </p>
+                              <div class="otp-container">
+                                  <p class="otp-label">Your Verification Code</p>
+                                  <p class="otp">${otp}</p>
+                              </div>
+                              <p class="otp-note">
+                                  This code will expire in <strong>5 minutes</strong> for security purposes.
+                                  If you didn't request this code, please ignore this email or contact support 
+                                  if you have concerns about your account security.
+                              </p>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td class="divider"></td>
+                      </tr>
+                      <tr>
+                          <td class="footer">
+                              <p class="footer-text">
+                                  This is an automated message. Please do not reply directly to this email.
+                              </p>
+                              <div class="footer-links">
+                                   <p class="credit">
+                                      <a href="https://otpservice-free.vercel.app" target="_blank">Visit Our Website</a>
+                                      &nbsp;·&nbsp; Designed & Built by <a href="https://github.com/Eswarchinthakayala-webdesign" target="_blank">Eswar Chinthakayala</a>
+                                    
+                                  </p>
+                              </div>
+                              <p class="footer-text" style="margin-top: 16px;">
+                                  &copy; ${new Date().getFullYear()} ${organization}. All rights reserved.
+                              </p>
+                          </td>
+                      </tr>
+                  </table>
               </div>
           </body>
       </html>
